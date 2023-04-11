@@ -13,8 +13,18 @@ export class HsnService {
     return this.hsnRepository.find();
   }
 
+  getHsnById(id: number): Promise<Hsn> {
+    return this.hsnRepository.findOne({ where: { id: id } });
+  }
+
   createHsn(createHsnDto: CreateHsnDto): Promise<Hsn> {
     const newHsn = this.hsnRepository.create(createHsnDto);
     return this.hsnRepository.save(newHsn);
+  }
+
+  async deleteHsnById(id: number): Promise<boolean> {
+    const hsn = await this.getHsnById(id);
+    const rows = await this.hsnRepository.delete(hsn);
+    return rows.affected > 0;
   }
 }
