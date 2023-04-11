@@ -1,9 +1,10 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { HsnService } from './hsn.service';
 import { Hsn } from './hsn.entity';
 import { CreateHsnDto } from './hsn.dtos';
+import { Request, Response } from 'express';
 
-@Controller()
+@Controller('hsn')
 export class HsnController {
   constructor(private readonly hsnService: HsnService) {}
 
@@ -13,11 +14,24 @@ export class HsnController {
   }
 
   @Post()
-  addHsn(): Promise<Hsn> {
-    const dummyHsn: CreateHsnDto = {
-      hsnNo: 'HSN11',
-      gst: '5',
-    };
-    return this.hsnService.createHsn(dummyHsn);
+  async addHsn(@Req() req: Request, @Res() res: Response): Promise<void> {
+    const { hsnNo, gst } = req.body;
+    const newHsn: CreateHsnDto = { hsnNo, gst };
+    const createdHsn = await this.hsnService.createHsn(newHsn);
+    res.send({ status: 'ok', data: createdHsn });
+  }
+
+  @Get(':id')
+  async getHsnById(@Param() params, @Res() res: Response): Promise<void> {
+    const { id } = params;
+    const hsn = await this.hsnService.getHsnById(id);
+    res.send({ status: 'ok', data: hsn });
+  }
+
+  @Delete(':id')
+  async deleteHsnById(@Param() params, @Res() res: Response): Promise<void> {
+    const { id } = params;
+    await this.hsnService.deleteHsnById(id);
+    res.send({ status: 'ok' });
   }
 }
